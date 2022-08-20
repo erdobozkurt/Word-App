@@ -67,3 +67,4 @@ class Meaning {
       synonyms.hashCode ^
       antonyms.hashCode;
 }
+
