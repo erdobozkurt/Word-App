@@ -1,12 +1,10 @@
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:word_app/view/widgets/input_tile_widget.dart';
-import 'main_page.dart';
-import 'package:firebase_core/firebase_core.dart';
+import '../../services/auth_methods.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -17,12 +15,14 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordContoller = TextEditingController();
   final secPasswordController = TextEditingController();
   bool passwordVisible = true;
-
   PickedFile? pickedFile;
+  final authMethods = AuthMethods();
+  bool _isLoading = false;
 
   UploadTask? uploadTask;
 
@@ -30,6 +30,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   void dispose() {
+    nameController.dispose();
     emailController.dispose();
     passwordContoller.dispose();
     secPasswordController.dispose();
@@ -67,10 +68,12 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
           ),
+          //* Name input
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputTileWidget(
               child: TextFormField(
+                controller: nameController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -81,6 +84,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
             ),
           ),
+          //* Email input
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputTileWidget(
@@ -97,6 +101,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
             ),
           ),
+          //* Password input
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputTileWidget(
@@ -120,6 +125,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
             ),
           ),
+          //* Confirm password input
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: InputTileWidget(
@@ -143,6 +149,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
             ),
           ),
+          //* Sign up button
           const Spacer(),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -155,9 +162,26 @@ class _SignUpPageState extends State<SignUpPage> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                onPressed: signUp,
-                child: Text('Sign Up',
-                    style: Theme.of(context).textTheme.headline6),
+                onPressed: () async {
+                  setState(() {
+                    _isLoading = true;
+                  });
+                  await authMethods.signUpWithEmailAndPassword(
+                      profileImage: pickedFile!,
+                      email: emailController.text,
+                      password: passwordContoller.text,
+                      name: nameController.text,
+                      context: context);
+                  setState(() {
+                    _isLoading = false;
+                  });
+                },
+                child: _isLoading
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                      )
+                    : Text('Sign Up',
+                        style: Theme.of(context).textTheme.headline6),
               ),
             ),
           ),
@@ -165,53 +189,6 @@ class _SignUpPageState extends State<SignUpPage> {
         ].reversed.toList(),
       ),
     );
-  }
-
-  signUp() async {
-    try {
-      if (passwordContoller.text.trim() == secPasswordController.text.trim()) {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordContoller.text.trim(),
-        );
-
-        final name = 'files/$pickedFile';
-        final file = File(pickedFile!.path);
-
-        final ref = FirebaseStorage.instance.ref().child(name);
-
-        uploadTask = ref.putFile(file);
-
-        final snapshot = await uploadTask!.whenComplete(
-          () {},
-        );
-
-        urlDownload = await snapshot.ref.getDownloadURL();
-
-        
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('check the password'),
-          ),
-        );
-        return;
-      }
-
-      FirebaseAuth.instance.authStateChanges().listen((User? user) {
-        if (user != null) {
-          Navigator.pushReplacementNamed(context, MainPage.routeName);
-        }
-      });
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.code.toString()),
-        ),
-      );
-    } catch (e) {
-      throw Exception('fail on sign up');
-    }
   }
 
   void pickProfilePicture() async {

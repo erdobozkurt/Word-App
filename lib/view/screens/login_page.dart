@@ -6,7 +6,7 @@ import 'package:word_app/view/widgets/input_tile_widget.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
-  static const routeName = 'loginPage';
+  static const routeName = '/loginPage';
 
   @override
   State<LoginPage> createState() => _LoginPageState();

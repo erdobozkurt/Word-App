@@ -14,7 +14,6 @@ Future main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-  static const routeName = '/';
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +28,6 @@ class MyApp extends StatelessWidget {
           ? LoginPage.routeName
           : MainPage.routeName,
       routes: {
-        MyApp.routeName: (context) => const MyApp(),
         MainPage.routeName: (context) => const MainPage(),
         ListPage.routeName: (context) => const ListPage(),
         LoginPage.routeName: (context) => const LoginPage(),

@@ -6,11 +6,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:word_app/model/word/word.dart';
+import 'package:word_app/services/auth_methods.dart';
 import 'package:word_app/view/screens/list_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:english_words/english_words.dart';
-
-import 'login_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -23,6 +22,7 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   late Future<Word> futureWord;
   final audioPlayer = AudioPlayer();
+  final AuthMethods authMethods = AuthMethods();
 
   @override
   void initState() {
@@ -69,7 +69,6 @@ class _MainPageState extends State<MainPage> {
       wordInfo = Word.fromJson(dataList[0]).meanings![0].partOfSpeech!; */
     } else {
       throw Exception('Failed to load data');
-
     }
 
     /* word = jsonDecode(wordsFromApi.body)[0]["word"];
@@ -95,23 +94,46 @@ class _MainPageState extends State<MainPage> {
           PopupMenuButton(
               onSelected: (value) {
                 if (value == 1) {
-                  Navigator.pushNamed(context, ListPage.routeName);
-                } else if (value == 2) {
-                  signOut();
-                  Navigator.pushReplacementNamed(context, LoginPage.routeName);
+                  authMethods.signOut(context);
                 }
               },
               itemBuilder: ((context) => [
                     const PopupMenuItem(
                       value: 1,
-                      child: Text('Favorite words'),
-                    ),
-                    const PopupMenuItem(
-                      value: 2,
                       child: Text('Sign out'),
                     )
                   ]))
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            DrawerHeader(
+              child: Center(
+                child: Column(
+                  // ignore: prefer_const_literals_to_create_immutables
+                  children: [
+                    const CircleAvatar(
+                      radius: 40,
+                      backgroundImage:
+                          NetworkImage('https://picsum.photos/200'),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('Erdoğan'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            ListTile(
+              title: const Text('Sign out'),
+              onTap: () {
+                authMethods.signOut(context);
+              },
+            )
+          ],
+        ),
       ),
       body: FutureBuilder<Word>(
           future: futureWord,
@@ -151,19 +173,17 @@ class _MainPageState extends State<MainPage> {
                                 onPressed: fetchAudio,
                                 icon: const Icon(Icons.volume_up_sharp),
                               ),
-                            
                             ],
                           ),
                           Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          snapshot.data!.meanings![0].partOfSpeech!,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ),
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              snapshot.data!.meanings![0].partOfSpeech!,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ),
                         ],
                       ),
-                      
                       Text(
                         description = snapshot
                             .data!.meanings![0].definitions![0].definition!,
