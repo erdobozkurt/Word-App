@@ -64,4 +64,6 @@ class Word {
       phonetic.hashCode ^
       phonetics.hashCode ^
       meanings.hashCode;
+
+  
 }

@@ -6,10 +6,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:word_app/model/word/word.dart';
+import 'package:word_app/services/api_services.dart';
 import 'package:word_app/services/auth_methods.dart';
 import 'package:word_app/view/screens/list_page.dart';
-import 'package:http/http.dart' as http;
-import 'package:english_words/english_words.dart';
+
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -23,12 +23,13 @@ class _MainPageState extends State<MainPage> {
   late Future<Word> futureWord;
   final audioPlayer = AudioPlayer();
   final AuthMethods authMethods = AuthMethods();
+  final ApiServices apiServices = ApiServices();
 
   @override
   void initState() {
     super.initState();
 
-    futureWord = setWord();
+    futureWord = apiServices.setWord();
   }
 
   String word = '';
@@ -41,50 +42,6 @@ class _MainPageState extends State<MainPage> {
 
   final _auth = FirebaseAuth.instance;
 
-  Future<http.Response> fetchWords(String word) {
-    return http.get(
-        Uri.parse('https://api.dictionaryapi.dev/api/v2/entries/en/$word'));
-  }
-
-  fetchAudio() async {
-    final apiCallUri =
-        'https://api.dictionaryapi.dev/media/pronunciations/en/$word-us.mp3';
-
-    await audioPlayer.play(UrlSource(apiCallUri));
-  }
-
-  Future<Word> setWord() async {
-    /* isLoading = true; */
-    int randomNumber = Random().nextInt(nouns.length);
-    String requestWord = nouns[randomNumber];
-    http.Response wordsFromApi = await fetchWords(requestWord);
-
-    if (wordsFromApi.statusCode == 200) {
-      List<dynamic> dataList = jsonDecode(wordsFromApi.body);
-
-      return Word.fromJson(dataList[0]);
-
-      /* description =
-          Word.fromJson(dataList[0]).meanings![0].definitions![0].definition!;
-      wordInfo = Word.fromJson(dataList[0]).meanings![0].partOfSpeech!; */
-    } else {
-      throw Exception('Failed to load data');
-    }
-
-    /* word = jsonDecode(wordsFromApi.body)[0]["word"];
-    String? descriptionData = jsonDecode(wordsFromApi.body)[0]["meanings"][0]
-        ["definitions"][0]["definition"];
-
-    if (descriptionData != null) {
-      description = descriptionData;
-    } else {
-      description = "";
-    } */
-
-    /* isLoading = false;
-    setState(() {}); */
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,13 +51,13 @@ class _MainPageState extends State<MainPage> {
           PopupMenuButton(
               onSelected: (value) {
                 if (value == 1) {
-                  authMethods.signOut(context);
+                  Navigator.pushNamed(context, ListPage.routeName);
                 }
               },
               itemBuilder: ((context) => [
                     const PopupMenuItem(
                       value: 1,
-                      child: Text('Sign out'),
+                      child: Text('Favorite Words'),
                     )
                   ]))
         ],
@@ -170,7 +127,9 @@ class _MainPageState extends State<MainPage> {
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
                               IconButton(
-                                onPressed: fetchAudio,
+                                onPressed: (){
+                                  apiServices.fetchAudio(word);
+                                },
                                 icon: const Icon(Icons.volume_up_sharp),
                               ),
                             ],
@@ -195,7 +154,7 @@ class _MainPageState extends State<MainPage> {
                         child: IconButton(
                           onPressed: () {
                             setState(() {
-                              futureWord = setWord();
+                              futureWord = apiServices.setWord();
                               isSaved = false;
                             });
                           },
@@ -222,8 +181,4 @@ class _MainPageState extends State<MainPage> {
 
     return docWord.set({'word': word, 'definition': description});
   }
-}
-
-void signOut() async {
-  await FirebaseAuth.instance.signOut();
 }
