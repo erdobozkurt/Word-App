@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:math';
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,7 +6,6 @@ import 'package:word_app/model/word/word.dart';
 import 'package:word_app/services/api_services.dart';
 import 'package:word_app/services/auth_methods.dart';
 import 'package:word_app/view/screens/list_page.dart';
-
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -68,14 +64,13 @@ class _MainPageState extends State<MainPage> {
             DrawerHeader(
               child: Center(
                 child: Column(
-                  // ignore: prefer_const_literals_to_create_immutables
-                  children: [
-                    const CircleAvatar(
+                  children: const [
+                    CircleAvatar(
                       radius: 40,
                       backgroundImage:
                           NetworkImage('https://picsum.photos/200'),
                     ),
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Text('Erdoğan'),
                     ),
@@ -127,7 +122,7 @@ class _MainPageState extends State<MainPage> {
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
                               IconButton(
-                                onPressed: (){
+                                onPressed: () {
                                   apiServices.fetchAudio(word);
                                 },
                                 icon: const Icon(Icons.volume_up_sharp),
