@@ -34,22 +34,26 @@ class _MainProviderPageState extends ConsumerState<MainProviderPage> {
         body: data.when(
           data: ((data) => Stack(
                 children: [
-                  _animatedWidget(
-                      isVisible: isVisible,
-                      child: DetailCardWidget(
-                        type: data.meanings![0].partOfSpeech ?? '',
-                        definition:
-                            data.meanings![0].definitions![0].definition ?? '',
-                        example:
-                            data.meanings![0].definitions![0].example ?? '',
-                      ),
-                      alignmentFirst: const Alignment(0, 0.2),
-                      alignmentSecond: const Alignment(0, 0.42)),
+                  Stack(
+                    children: 
+                          [_animatedWidget(
+                          isVisible: isVisible,
+                          child: DetailCardWidget(
+                            type: data.meanings![0].partOfSpeech ?? '',
+                            definition:
+                                data.meanings![0].definitions![0].definition ?? '',
+                            example:
+                                data.meanings![0].definitions![0].example ?? '',
+                          ),
+                          alignmentFirst: const Alignment(0, 0.2),
+                          alignmentSecond: const Alignment(0, 0.42)),
+                        ],
+                  ),
                   _animatedWidget(
                       isVisible: isVisible,
                       child: WordCardWidget(
                           word: data.word ?? '',
-                          pronunciation: data.phonetics![0].text ?? ''),
+                          pronunciation: data.phonetic ?? ''),
                       alignmentFirst: const Alignment(0, -0.5),
                       alignmentSecond: const Alignment(0, -0.58)),
                   Align(

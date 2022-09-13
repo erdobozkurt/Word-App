@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:word_app/providers/data_provider.dart';
 import 'package:word_app/view/screens/canvas.dart';
+import 'package:flutter_swipecards/flutter_swipecards.dart';
 
 class WordCardWidget extends ConsumerWidget {
   const WordCardWidget({
@@ -11,6 +13,7 @@ class WordCardWidget extends ConsumerWidget {
 
   final String word;
   final String pronunciation;
+  
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,43 +22,51 @@ class WordCardWidget extends ConsumerWidget {
       duration: const Duration(milliseconds: 500),
       height: MediaQuery.of(context).size.height * (isVisible ? 0.42 : 0.5),
       width: MediaQuery.of(context).size.width * 0.9,
-      child: Card(
-        elevation: 20,
-        color: Colors.deepPurple,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(40.0),
-        ),
-        child: Stack(
-          children: [
-            //* Word
-            Center(
-              child: Text(
-                style: Theme.of(context)
-                    .textTheme
-                    .displaySmall!
-                    .copyWith(color: Colors.white),
-                word,
-              ),
-            ),
-            //* Pronunciation
-            Align(
-              alignment: const Alignment(0, 0.5),
-              child: Text(pronunciation,
+      child: TinderSwapCard(
+        maxHeight: MediaQuery.of(context).size.height * 0.5,
+        minHeight: MediaQuery.of(context).size.height * 0.42,
+        maxWidth: MediaQuery.of(context).size.width * 0.9,
+        minWidth: MediaQuery.of(context).size.width * 0.89,
+        totalNum: 1,
+        swipeCompleteCallback: (orientation, index) => ref.refresh(wordDataProvider),
+        cardBuilder:(context, index) =>  Card(
+          elevation: 20,
+          color: Colors.deepPurple,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(40.0),
+          ),
+          child: Stack(
+            children: [
+              //* Word
+              Center(
+                child: Text(
                   style: Theme.of(context)
                       .textTheme
-                      .titleMedium!
-                      .copyWith(color: Colors.white70)),
-            ),
-            Positioned(
-              right: 16,
-              bottom: 16,
-              child: IconButton(
-                onPressed: () {},
-                icon:
-                    const Icon(Icons.volume_up_rounded, color: Colors.white70),
+                      .displaySmall!
+                      .copyWith(color: Colors.white),
+                  word,
+                ),
               ),
-            )
-          ],
+              //* Pronunciation
+              Align(
+                alignment: const Alignment(0, 0.5),
+                child: Text(pronunciation,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium!
+                        .copyWith(color: Colors.white70)),
+              ),
+              Positioned(
+                right: 16,
+                bottom: 16,
+                child: IconButton(
+                  onPressed: () {},
+                  icon:
+                      const Icon(Icons.volume_up_rounded, color: Colors.white70),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

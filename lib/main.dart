@@ -5,7 +5,6 @@ import 'package:word_app/view/screens/canvas.dart';
 import 'package:word_app/view/screens/list_page.dart';
 import 'package:word_app/view/screens/login_page.dart';
 import 'package:word_app/view/screens/main_page.dart';
-import 'package:word_app/view/screens/provider_page.dart';
 import 'package:word_app/view/screens/sign_up_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -35,7 +34,6 @@ class MyApp extends StatelessWidget {
         ListPage.routeName: (context) => const ListPage(),
         LoginPage.routeName: (context) => const LoginPage(),
         SignUpPage.routeName: (context) => const SignUpPage(),
-        ProviderPage.routeName: (context) => const ProviderPage(),
         MainProviderPage.routeName: (context) => const MainProviderPage(),
       },
     );
